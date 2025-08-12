@@ -1,0 +1,82 @@
+// Use the same Postgres as Supabase (recommended) or any Postgres
+// If Supabase, the auth.users table exists separately; we store userId UUID references.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserProfile {
+  // Your app-level user profile (linked to Supabase auth user id)
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  favorites Favorite[]
+  searches  SearchHistory[]
+  feedbacks Feedback[]
+}
+
+model Place {
+  id            String   @id @default(uuid())
+  name          String
+  lat           Float
+  lng           Float
+  address       String?
+  googlePlaceId String?  @unique
+  fsqId         String?  @unique
+  yelpId        String?  @unique
+  rating        Float?
+  userRatings   Int?
+  priceLevel    Int?
+  vegScore      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  cuisines      PlaceCuisine[]
+  favorites     Favorite[]
+}
+
+model Cuisine {
+  id       Int     @id @default(autoincrement())
+  slug     String  @unique
+  label    String
+  places   PlaceCuisine[]
+}
+
+model PlaceCuisine {
+  placeId   String
+  cuisineId Int
+  place     Place   @relation(fields: [placeId], references: [id])
+  cuisine   Cuisine @relation(fields: [cuisineId], references: [id])
+  @@id([placeId, cuisineId])
+}
+
+model Favorite {
+  userId  String
+  placeId String
+  user    UserProfile @relation(fields: [userId], references: [id])
+  place   Place       @relation(fields: [placeId], references: [id])
+  createdAt DateTime  @default(now())
+  @@id([userId, placeId])
+}
+
+model SearchHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  query     String
+  filters   Json
+  createdAt DateTime @default(now())
+  user      UserProfile @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  userId    String?
+  message   String
+  createdAt DateTime @default(now())
+  user      UserProfile? @relation(fields: [userId], references: [id])
+}
