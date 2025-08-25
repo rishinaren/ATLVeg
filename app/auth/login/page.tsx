@@ -17,13 +17,20 @@ export default function LoginPage() {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { 
         setError(error.message); 
         return; 
       }
+      
+      // For development mode, store user info in cookie
+      if (data.user) {
+        document.cookie = `dev_auth_user=${JSON.stringify(data.user)}; path=/; max-age=86400`;
+      }
+      
       router.push("/");
     } catch (err) {
+      console.error("Login error:", err);
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);

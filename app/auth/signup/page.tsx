@@ -30,14 +30,26 @@ export default function SignupPage() {
         return; 
       }
       
-      // Create profile row (client demo; production: server action)
-      const user = data.user; 
-      if (user) {
-        await fetch("/api/feedback", { method: "HEAD" }); // warm
-        await fetch("/api/favorites", { method: "POST", body: JSON.stringify({ bootstrapProfile: true }) });
+      // For development mode, store user info in cookie
+      if (data.user) {
+        // Set cookie for dev auth
+        document.cookie = `dev_auth_user=${JSON.stringify(data.user)}; path=/; max-age=86400`;
+        
+        // Create profile row (client demo; production: server action)
+        try {
+          await fetch("/api/feedback", { method: "HEAD" }); // warm
+          await fetch("/api/favorites", { 
+            method: "POST", 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ bootstrapProfile: true }) 
+          });
+        } catch (profileError) {
+          console.warn("Profile creation failed, but auth succeeded:", profileError);
+        }
       }
       router.push("/");
     } catch (err) {
+      console.error("Signup error:", err);
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);

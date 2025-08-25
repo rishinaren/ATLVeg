@@ -13,10 +13,52 @@ type PlaceDetails = {
   lng: number;
 };
 
+// Function to add/remove favorites
+async function toggleFavorite(placeId: string, placeName: string, placeAddress?: string, isFavorite?: boolean) {
+  try {
+    if (isFavorite) {
+      await fetch(`/api/favorites?placeId=${placeId}`, {
+        method: 'DELETE',
+      });
+    } else {
+      await fetch('/api/favorites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          placeId,
+          placeName,
+          placeAddress,
+        }),
+      });
+    }
+  } catch (error) {
+    console.warn('Failed to toggle favorite:', error);
+    throw error;
+  }
+}
+
 export default function PlacePage({ params }: { params: { id: string } }) {
   const [place, setPlace] = useState<PlaceDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [vegAnalysis, setVegAnalysis] = useState<{score: number; label: string; reasoning: string[]} | null>(null);
+
+  const handleFavoriteToggle = async () => {
+    if (!place) return;
+    
+    setFavoriteLoading(true);
+    try {
+      await toggleFavorite(place.id, place.name, place.address, isFavorite);
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      // Handle error silently - in a real app you might show a toast
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   useEffect(() => {
     // For now, we'll create demo data since we don't have a real database
@@ -185,6 +227,16 @@ export default function PlacePage({ params }: { params: { id: string } }) {
         >
           📍 Get Directions
         </a>
+        <button
+          onClick={handleFavoriteToggle}
+          disabled={favoriteLoading}
+          className={`flex-1 ${isFavorite 
+            ? 'bg-red-600 hover:bg-red-700' 
+            : 'bg-green-600 hover:bg-green-700'
+          } text-white text-center py-4 px-6 rounded-xl font-semibold transition-colors disabled:opacity-50`}
+        >
+          {favoriteLoading ? '...' : isFavorite ? '💔 Remove Favorite' : '❤️ Add to Favorites'}
+        </button>
         <button
           onClick={() => window.history.back()}
           className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-center py-4 px-6 rounded-xl font-semibold transition-colors"

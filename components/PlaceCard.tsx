@@ -2,6 +2,25 @@
 import Link from "next/link";
 import { useState } from "react";
 
+// Function to track restaurant clicks
+async function trackClick(placeId: string, placeName: string, placeAddress?: string) {
+  try {
+    await fetch('/api/clicks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        placeId,
+        placeName,
+        placeAddress,
+      }),
+    });
+  } catch (error) {
+    console.warn('Failed to track click:', error);
+  }
+}
+
 export function PlaceCard({
   id,
   name,
@@ -138,6 +157,7 @@ export function PlaceCard({
           <Link 
             className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-center py-2 px-4 rounded-lg font-medium transition-colors text-sm"
             href={`/place/${id}`}
+            onClick={() => trackClick(id, name, address)}
           >
             ℹ️ Details
           </Link>

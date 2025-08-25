@@ -1,12 +1,12 @@
-// Use the same Postgres as Supabase (recommended) or any Postgres
-// If Supabase, the auth.users table exists separately; we store userId UUID references.
+// SQLite database for local development
+// Can be switched back to PostgreSQL for production
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -17,6 +17,7 @@ model UserProfile {
   createdAt DateTime @default(now())
   favorites Favorite[]
   searches  SearchHistory[]
+  clicks    ClickHistory[]
   feedbacks Feedback[]
 }
 
@@ -37,6 +38,7 @@ model Place {
   updatedAt     DateTime @updatedAt
   cuisines      PlaceCuisine[]
   favorites     Favorite[]
+  clicks        ClickHistory[]
 }
 
 model Cuisine {
@@ -67,9 +69,21 @@ model SearchHistory {
   id        String   @id @default(uuid())
   userId    String
   query     String
-  filters   Json
+  filters   String   // JSON data stored as text for SQLite compatibility
   createdAt DateTime @default(now())
   user      UserProfile @relation(fields: [userId], references: [id])
+  @@index([userId, createdAt])
+}
+
+model ClickHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  placeId   String
+  placeName String
+  placeAddress String?
+  createdAt DateTime @default(now())
+  user      UserProfile @relation(fields: [userId], references: [id])
+  place     Place @relation(fields: [placeId], references: [id])
   @@index([userId, createdAt])
 }
 
