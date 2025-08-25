@@ -110,7 +110,7 @@ export default function PlacePage({ params }: { params: { id: string } }) {
     );
   }
 
-  const src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyC04O8zgcvfZzxlaXKKQBl1Ie-5R1xAxXg&q=${encodeURIComponent(place.name)}&center=${place.lat},${place.lng}&zoom=15`;
+  const src = `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(place.name)}&center=${place.lat},${place.lng}&zoom=15`;
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
   
   const getVegScoreColor = (score: number) => {

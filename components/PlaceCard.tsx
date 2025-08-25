@@ -92,7 +92,7 @@ export function PlaceCard({
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-green-400 to-blue-500 relative">
             <iframe
-              src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyC04O8zgcvfZzxlaXKKQBl1Ie-5R1xAxXg&q=${encodeURIComponent(name)}&center=${lat},${lng}&zoom=15`}
+              src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(name)}&center=${lat},${lng}&zoom=15`}
               className="w-full h-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
