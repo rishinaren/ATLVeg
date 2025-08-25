@@ -13,7 +13,7 @@ export default function Navbar() {
       <div className="container flex items-center justify-between py-3">
         <Link href="/" className="text-xl font-bold">ATLVeg</Link>
         <nav className="flex items-center gap-2">
-          <Tab href="/search" label="Search" />
+          <Tab href="/about" label="About" />
           <Tab href="/favorites" label="Favorites" />
           <Tab href="/history" label="History" />
           <Tab href="/feedback" label="Feedback" />

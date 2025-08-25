@@ -10,6 +10,16 @@ type PlaceLite = {
   priceLevel?: number; // 0-4
   types?: string[];
   location?: { latitude: number; longitude: number };
+  photos?: Array<{
+    name: string;
+    widthPx: number;
+    heightPx: number;
+    authorAttributions?: Array<{
+      displayName: string;
+      uri: string;
+      photoUri: string;
+    }>;
+  }>;
 };
 
 function fieldMask(fields: string[]) {
@@ -39,6 +49,7 @@ export async function googleTextSearch(query: string, center?: {lat:number,lng:n
         "places.priceLevel",
         "places.types",
         "places.location",
+        "places.photos",
       ]),
     },
     body: JSON.stringify(body),
@@ -70,6 +81,7 @@ export async function googleNearby({lat,lng}:{lat:number,lng:number}) {
         "places.priceLevel",
         "places.types",
         "places.location",
+        "places.photos",
       ]),
     },
     body: JSON.stringify(body),
@@ -80,3 +92,10 @@ export async function googleNearby({lat,lng}:{lat:number,lng:number}) {
 }
 
 export type { PlaceLite };
+
+// Function to get photo URL from photo reference
+export function getPhotoUrl(photoName: string, maxWidth: number = 400): string {
+  // The photo name comes in format: places/{place_id}/photos/{photo_id}
+  // We need to call the Photos API to get the actual image
+  return `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=${maxWidth}&key=${process.env.GOOGLE_PLACES_API_KEY}`;
+}
